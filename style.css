@@ -22,7 +22,7 @@
 }
 
 .nav {
-        font-family: OpenSans;
+        font-family: OpenSansLgt;
         text-transform: uppercase;
 }
 
@@ -41,7 +41,17 @@
         font-style: italic;
 }
 
+.nav li h1 {
+        font-family: OpenSans;
+         font-size: 2em;
+        margin: 0.67em 0;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.1;
+        color: inherit;
+}
 .nav li h1 a {
+
         color: #2e2e2e;
 }
 
