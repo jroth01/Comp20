@@ -2,7 +2,7 @@
 var myLat = 0;
 var myLng = 0;
 var api = "https://rocky-taiga-26352.herokuapp.com/redline.json"
-var stops;
+var mbtaTrips;
 var me = new google.maps.LatLng(myLat, myLng);
 var myOptions = {
                         zoom: 13, // The larger the zoom number, the bigger the zoom
@@ -27,20 +27,29 @@ function httpRequest(method, url) {
 
 // Get each stop, store in array
 // map over the stops, put down markers
-function queryStops()
+function queryTripList()
 {
         httpRequest('GET', api).then(function (res){
-                stops = res;
+                mbtaTrips = res.target.response;
+                mbtaTrips = JSON.parse(mbtaTrips);
+                parseTripList();
         }, function(err) {
                 alert("Oh no! error getting stops!");
         });
+}
+
+function parseTripList()
+{      
+        // get triplist JSON
+        console.log(mbtaTrips.TripList.Trips);
+       
 }
 
 function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
-        queryStops();
+        queryTripList();
 }
 
 function getMyLocation() {
