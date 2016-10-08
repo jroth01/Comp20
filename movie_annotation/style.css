@@ -1,7 +1,13 @@
 #movie_quotes {
+        text-align: center;
+}
 
+#title {
+        text-align: center;
 }
 
 video {
-        width: 300px;
+        display: block;
+        margin: 0 auto;
+        width: 500px;
 }

@@ -27,7 +27,7 @@ function modifyText(string) {
 video.addEventListener("timeupdate", function() {
 
         if (video.currentTime < 4) {
-                caption.innerHTML ="<h3>This will not work on FireFox...Sorry!</h3>";
+                caption.innerHTML ="<h3>(Closed captioning not supported on FireFox)</h3>";
         }
         else if (video.currentTime > 24 && video.currentTime < 27) {
                 modifyText("Igor: DR. FRANKENSTEIN?!?!?");
@@ -38,13 +38,13 @@ video.addEventListener("timeupdate", function() {
         else if (video.currentTime > 34 && video.currentTime < 36) {
                 modifyText("Igor: You're putting me on.");
         }
-        else if (video.currentTime > 36 && video.currentTime < 40) {
+        else if (video.currentTime > 36 && video.currentTime < 39) {
                 modifyText("Dr. Frederick Frankenstein: No, it pronounced, \"Frokensteen.\"");
         }
-        else if (video.currentTime > 40 && video.currentTime < 43) {
+        else if (video.currentTime > 39 && video.currentTime < 42) {
                 modifyText("Igor: Do you also say Froaderick?");
         } 
-        else if (video.currentTime > 43 && video.currentTime < 44) {
+        else if (video.currentTime > 42 && video.currentTime < 44) {
                 modifyText("Dr. Frederick Frankenstein: No . . . \"Frederick.\"");
         } 
         else if (video.currentTime > 44 && video.currentTime < 47) {
@@ -62,16 +62,16 @@ video.addEventListener("timeupdate", function() {
         else if (video.currentTime > 53 && video.currentTime < 57) {
                 modifyText("Igor: No, it's pronounced \"eye-gor.\"");
         } 
-        else if (video.currentTime > 57 && video.currentTime < 59) {
+        else if (video.currentTime > 57 && video.currentTime < 58) {
                 modifyText("Dr. Frederick Frankenstein: But they told me it was \"ee-gor\"...");
         } 
-        else if (video.currentTime > 59 && video.currentTime < 61) {
+        else if (video.currentTime > 58 && video.currentTime < 60) {
                 modifyText("Igor: Well, they were wrong then, weren't they?");
         } 
-        else if (video.currentTime > 61 && video.currentTime < 65) {
+        else if (video.currentTime > 60 && video.currentTime < 64) {
                 modifyText("Dr. Frederick Frankenstein: Uh, you were sent here by Herr Falkstein, weren't you?");
         } 
-        else if (video.currentTime > 65 && video.currentTime < 71) {
+        else if (video.currentTime > 64 && video.currentTime < 71) {
                 modifyText("Igor: Yes. My grandfather used to work for your grandfather.");
         } 
         else if (video.currentTime > 71 && video.currentTime < 72) {
