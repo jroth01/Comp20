@@ -1,22 +1,18 @@
 body {
-          font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-   font-weight: 300;
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: 300;
 }
-
 .bold {
-        font-style: bold;
+    font-style: bold;
 }
-
 #movie_quotes {
-        text-align: center;
+    text-align: center;
 }
-
 #title {
-        text-align: center;
+    text-align: center;
 }
-
 video {
-        display: block;
-        margin: 0 auto;
-        width: 500px;
+    display: block;
+    margin: 0 auto;
+    width: 500px;
 }
