@@ -23,7 +23,7 @@ function modifyText(string) {
   caption.innerHTML = "<p>" + string + "<p>";
 }
 
-
+// Add event listener and define the callback function to update the caption
 video.addEventListener("timeupdate", function() {
 
         if (video.currentTime < 4) {
@@ -81,7 +81,7 @@ video.addEventListener("timeupdate", function() {
                 modifyText("Igor: Of course the rates have gone up.");
         } 
         else if (video.currentTime > 74 && video.currentTime < 88) {
-                modifyText("Dr. Frederick Frankenstein: Of course, of course, I'm sure we'll get along splendidly. Oh, I uh, you know I don't mean to embarrass you, but I'm rather a brilliant surgeon. Perhaps I can help you with that hump.");
+                modifyText("Dr. Frederick Frankenstein: Of course, of course, I'm sure we'll get along splendidly. <p> Oh, I uh, you know I don't mean to embarrass you, but I'm rather a brilliant surgeon. Perhaps I can help you with that hump.</p>");
         }
         else if (video.currentTime > 89 && video.currentTime < 92) {
                 modifyText("Igor: What hump?");
