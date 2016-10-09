@@ -13,6 +13,8 @@ var map;
 var marker;
 var infowindow = new google.maps.InfoWindow();
 
+
+
 var stations = [
 {
     name: "South Station",
@@ -131,6 +133,58 @@ var stations = [
 }
 ];
 
+function getStationByName(name) {
+  return stations.filter(
+      function(stations){ return stations.name == name}
+  );
+}
+
+function drawLines() {
+    connect("Alewife", "Davis");
+    connect("Davis", "Porter Square");
+    connect("Porter Square", "Harvard Square");
+    connect("Harvard Square", "Central Square");
+    connect("Central Square", "Kendall/MIT");
+    connect("Kendall/MIT", "Charles/MGH");
+    connect("Charles/MGH", "Park Street");
+    connect("Park Street", "Downtown Crossing");
+    connect("Downtown Crossing", "South Station");
+    connect("South Station", "Broadway");
+    connect("Broadway", "Andrew");
+    connect("Andrew", "JFK/UMass");
+
+    // forks here
+    //right fork 
+    connect("JFK/UMass", "North Quincy");
+    connect("North Quincy", "Wollaston");
+    connect("Wollaston", "Quincy Center");
+    connect("Quincy Center", "Quincy Adams");
+    connect("Quincy Adams", "Braintree");
+
+    // left fork
+    connect("JFK/UMass", "Savin Hill");
+    connect("Savin Hill", "Fields Corner");
+    connect("Fields Corner", "Shamut");
+    connect("Shamut", "Ashmont");
+}
+
+function connect(st1, st2) {
+    var station1 = getStationByName(st1)[0];
+    var station2 = getStationByName(st2)[0];
+    var line = [
+          {lat: station1.lat, lng: station1.lg},
+          {lat: station2.lat, lng: station2.lg},
+    ];
+    var redLine = new google.maps.Polyline({
+          path: line,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 5
+        });
+    redLine.setMap(map);
+}
+
 //http://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr
 function httpRequest(method, url) {
         //returns a promise
@@ -161,12 +215,10 @@ function parseTripList()
         // get triplist JSON
          mbtaTrips = mbtaTrips.TripList.Trips
         var lt, lg, trainName;
-        console.log(mbtaTrips);
         for (var i = 0; i < mbtaTrips.length; i++) {
             lt = mbtaTrips[i].Position.Lat;
             lg = mbtaTrips[i].Position.Long;
             trainName = mbtaTrips[i].Position.Train;
-            console.log(trainName);
             createMarker(lt,lg, trainName, "train.png");
         }
 }
@@ -176,6 +228,7 @@ function init()
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
         plotStations();
+        drawLines();
         queryTripList();
 }
 
