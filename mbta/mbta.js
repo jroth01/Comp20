@@ -203,7 +203,10 @@ function queryTripList()
         httpRequest('GET', api).then(function (res){
                 mbtaTrips = res.target.response;
                 mbtaTrips = JSON.parse(mbtaTrips);
+                console.log(mbtaTrips);
                 parseTripList();
+                plotStations();
+                drawLines();
         }, function(err) {
                 alert("Oh no! error getting stops!");
         });
@@ -213,7 +216,7 @@ function queryTripList()
 function parseTripList()
 {      
         // get triplist JSON
-         mbtaTrips = mbtaTrips.TripList.Trips
+        mbtaTrips = mbtaTrips.TripList.Trips
         var lt, lg, trainName;
         for (var i = 0; i < mbtaTrips.length; i++) {
             lt = mbtaTrips[i].Position.Lat;
@@ -223,25 +226,48 @@ function parseTripList()
         }
 }
 
+function upcomingTrains(stationName)
+{
+    var estimates;
+    var upcoming =[];
+    // For each train 
+     for (var i = 0; i < mbtaTrips.length; i++) {
+        // get predictions
+        estimates =  mbtaTrips[i].Predictions;
+        // find prediction specific to station 
+        for (var j = 0; j < estimates.length; j++) {
+            if (estimates[j].Stop == stationName) {
+                upcoming.push ({
+                    trainID: mbtaTrips[i].Position.Train,
+                    arrival: estimates[j].Seconds, 
+                    updated: mbtaTrips[i].Position.Timestamp
+                })
+            }
+        }
+     }
+
+     return upcoming;
+}
 // Initialize the map
 function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
-        plotStations();
-        drawLines();
+
         queryTripList();
 }
 
 // Plot each station 
 function plotStations() 
 {
-    var lt, lg, name;
+    var lt, lg, name, estimates;
     for (var i = 0; i < stations.length; i++) {
         name = stations[i].name;
         lt = stations[i].lat;
         lg = stations[i].lg;
-         createMarker(lt,lg, name, "mbta.png");
+        estimates = upcomingTrains(name);
+        console.log(estimates);
+        createMarker(lt,lg, name, "mbta.png", estimates);
     }
 }
 
@@ -260,8 +286,9 @@ function getMyLocation() {
 }
 
 // Create a marker on the map
-function createMarker(lat,lg,str, imgUrl) {
+function createMarker(lat,lg,str, imgUrl, estimates) {
         // Create a marker
+      
         var coordinates = new google.maps.LatLng(lat, lg);
         var newMarker = new google.maps.Marker({
                 position: coordinates,
@@ -269,9 +296,10 @@ function createMarker(lat,lg,str, imgUrl) {
                 icon: imgUrl
         });
         newMarker.setMap(map);
+          var contentString = "<h1>" + newMarker.title + "</h1><p>" + JSON.stringify(estimates) + "</p>";
          // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
-                infowindow.setContent(newMarker.title);
+                infowindow.setContent(contentString);
                 infowindow.open(map, newMarker);
         });
 
