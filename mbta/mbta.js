@@ -10,9 +10,8 @@ var myOptions = {
                         mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
 var map;
-var marker;
+var myMarker;
 var infowindow = new google.maps.InfoWindow();
-
 
 
 var stations = [
@@ -153,7 +152,6 @@ function drawLines() {
     connect("Broadway", "Andrew");
     connect("Andrew", "JFK/UMass");
 
-    // forks here
     //right fork 
     connect("JFK/UMass", "North Quincy");
     connect("North Quincy", "Wollaston");
@@ -185,6 +183,7 @@ function connect(st1, st2) {
     redLine.setMap(map);
 }
 
+// Return a promise from an http request 
 //http://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr
 function httpRequest(method, url) {
         //returns a promise
@@ -210,6 +209,7 @@ function queryTripList()
         });
 }
 
+// Parse JSON and mark each train on the map 
 function parseTripList()
 {      
         // get triplist JSON
@@ -223,6 +223,7 @@ function parseTripList()
         }
 }
 
+// Initialize the map
 function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
@@ -232,6 +233,7 @@ function init()
         queryTripList();
 }
 
+// Plot each station 
 function plotStations() 
 {
     var lt, lg, name;
@@ -243,6 +245,7 @@ function plotStations()
     }
 }
 
+// Get my current position
 function getMyLocation() {
         if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -256,42 +259,49 @@ function getMyLocation() {
         }
 }
 
+// Create a marker on the map
 function createMarker(lat,lg,str, imgUrl) {
         // Create a marker
-        var train = new google.maps.LatLng(lat, lg);
-        marker = new google.maps.Marker({
-                position: train,
+        var coordinates = new google.maps.LatLng(lat, lg);
+        var newMarker = new google.maps.Marker({
+                position: coordinates,
                 title: str,
                 icon: imgUrl
         });
-        marker.setMap(map);
+        newMarker.setMap(map);
+         // Open info window on click of marker
+        google.maps.event.addListener(newMarker, 'click', function() {
+                infowindow.setContent(newMarker.title);
+                infowindow.open(map, newMarker);
+        });
 
 }
 
+// Render the map
 function renderMap()
 {
         me = new google.maps.LatLng(myLat, myLng);
         
-        // Update map and go there...
+        // Update map and go to my current location
         map.panTo(me);
 
         // Create a marker
-        marker = new google.maps.Marker({
+        myMarker = new google.maps.Marker({
                 position: me,
                 title: "Here I Am!"
         });
-        marker.setMap(map);
+        myMarker.setMap(map);
                 
         // Open info window on click of marker
-        google.maps.event.addListener(marker, 'click', function() {
-                infowindow.setContent(marker.title);
-                infowindow.open(map, marker);
+        google.maps.event.addListener(myMarker, 'click', function() {
+                infowindow.setContent(myMarker.title);
+                infowindow.open(map, myMarker);
         });
 }
 
 // Using haversine formula
 // code from  http://www.movable-type.co.uk/scripts/latlong.html
-function getDistance()
+function getDistance(lat1, lon1, lat2, lon2)
 {
     var R = 6371e3; // metres
     var φ1 = lat1.toRadians();
