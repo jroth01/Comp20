@@ -1,6 +1,6 @@
 // API 
-var myLat = 0;
-var myLng = 0;
+var myLat = 42.352271;
+var myLng = -71.05524200000001;
 var api = "https://rocky-taiga-26352.herokuapp.com/redline.json"
 var mbtaTrips;
 var me = new google.maps.LatLng(myLat, myLng);
@@ -230,9 +230,26 @@ function parseTripList()
                 lt = mbtaTrips[i].Position["Lat"];
                 lg = mbtaTrips[i].Position.Long;
                 trainName = mbtaTrips[i].Position.Train;
-                createMarker(lt,lg, trainName, "train.png", null);
+            estimates = getEstimates(mbtaTrips[i],mbtaTrips[i].Predictions);
+                createMarker(lt,lg, trainName, "train.png", estimates);
             }
         }
+}
+
+function getEstimates(trip, predictions) {
+    var upcoming = [];
+    for (var j = 0; j < predictions.length; j++) 
+    {
+        if (predictions[j].Stop) {
+            upcoming.push ({
+                stop: predictions[j].Stop,
+                trainID: trip.Position.Train,
+                arrival: predictions[j].Seconds, 
+                updated: trip.Position.Timestamp
+            })
+        }
+    }
+    return upcoming;
 }
 
 function upcomingTrains(stationName)
@@ -246,14 +263,14 @@ function upcomingTrains(stationName)
 
         if (mbtaTrips[i].Position && estimates) {
             // find prediction specific to station 
-            for (var j = 0; j < estimates.length; j++) {
-                if (estimates[j].Stop == stationName) {
-                    upcoming.push ({
-                        trainID: mbtaTrips[i].Position.Train,
-                        arrival: estimates[j].Seconds, 
-                        updated: mbtaTrips[i].Position.Timestamp
-                    })
+            trainEst = getEstimates(mbtaTrips[i], estimates);
+            
+            for (var j = 0; j < trainEst; j++) {
+                console.log("triggered");
+                if (trainEst[j].stop == stationName) {
+                    upcoming.push(trainEst[j]);
                 }
+
             }
         }
      }
