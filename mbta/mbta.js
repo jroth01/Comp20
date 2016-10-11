@@ -206,7 +206,6 @@ function queryTripList()
 
                 if (status == 200) {
                     mbtaTrips = JSON.parse(mbtaTrips);
-                    console.log(mbtaTrips);
                     parseTripList();
                     plotStations();
                     drawLines();
@@ -223,15 +222,14 @@ function parseTripList()
 {      
         // get triplist JSON
         mbtaTrips = mbtaTrips.TripList.Trips
-     
         var lt, lg, trainName;
         for (var i = 0; i < mbtaTrips.length; i++) {
             if (mbtaTrips[i].Position) {
                 lt = mbtaTrips[i].Position["Lat"];
                 lg = mbtaTrips[i].Position.Long;
                 trainName = mbtaTrips[i].Position.Train;
-            estimates = getEstimates(mbtaTrips[i],mbtaTrips[i].Predictions);
-                createMarker(lt,lg, trainName, "train.png", estimates);
+                estimates = getEstimates(mbtaTrips[i],mbtaTrips[i].Predictions);
+                createTrainMarker(lt,lg, trainName, "train.png", estimates);
             }
         }
 }
@@ -266,11 +264,11 @@ function upcomingTrains(stationName)
             trainEst = getEstimates(mbtaTrips[i], estimates);
             
             for (var j = 0; j < trainEst; j++) {
-                console.log("triggered");
                 if (trainEst[j].stop == stationName) {
+                     console.log("FOUND MATCH");
+                    console.log(trainEst);
                     upcoming.push(trainEst[j]);
                 }
-
             }
         }
      }
@@ -312,6 +310,72 @@ function getMyLocation() {
         else {
                 alert("Geolocation is not supported by your web browser.  What a shame!");
         }
+}
+
+// Create a marker on the map
+function createTrainMarker(lat,lg,str, imgUrl, estimates) {
+        // Create a marker
+      
+        var coordinates = new google.maps.LatLng(lat, lg);
+        var newMarker = new google.maps.Marker({
+                position: coordinates,
+                title: str,
+                icon: imgUrl
+        });
+        newMarker.setMap(map);
+
+
+        headers = "<th>Station</th><th>Arrival</th><th>Updated</td>";
+        rows = "";
+
+        for (i = 0; i < estimates.length; i++) {
+            rows += "<tr><td>" + estimates[i].stop + "</td><td>" + estimates[i].arrival + "</td><td>" + 
+            estimates[i].updated + "</td></tr>";
+        }
+
+        closest = getClosestStation(lat,lg);
+
+          //var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<table>" +
+         // headers + rows + "</table>"  + "</p>";
+
+         var contentString = "<h1>" + newMarker.title + "</h1><p>" + closest.station + "</p>"
+         // Open info window on click of marker
+        google.maps.event.addListener(newMarker, 'click', function() {
+                infowindow.setContent(contentString);
+                infowindow.open(map, newMarker);
+        });
+
+}
+
+function getClosestStation(trainLat, trainLon) {
+    distances = getDistances(trainLat, trainLon);
+    min = getMinDistance(distances);
+    return min;
+}
+
+// returns closest staton based on trains lat and long
+function getDistances(trainLat, trainLon) {
+    distances = [];
+    for (i = 0; i < stations.length; i++) {
+        d = getDistance(trainLat, trainLon, stations[i].lat, stations[i].lg);
+        obj = {
+            station: stations[i].name,
+            distanceTo: d
+        };
+        distances.push(obj);
+    }
+    return distances;
+}
+
+function getMinDistance(distances) {
+    min = distances[0];
+    for (j = 1; j < distances.length; j++) {
+        if (distances[j].distanceTo < min.distanceTo) {
+            min = distances[j];
+        }
+    }
+    console.log("MIN: " + min);
+    return min;
 }
 
 // Create a marker on the map
@@ -360,16 +424,20 @@ function renderMap()
 // code from  http://www.movable-type.co.uk/scripts/latlong.html
 function getDistance(lat1, lon1, lat2, lon2)
 {
-    var R = 6371e3; // metres
-    var φ1 = lat1.toRadians();
-    var φ2 = lat2.toRadians();
-    var Δφ = (lat2-lat1).toRadians();
-    var Δλ = (lon2-lon1).toRadians();
+    Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
+} 
 
-    var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    var d = R * c;
+var R = 6371; // km 
+//has a problem with the .toRad() method below.
+var x1 = lat2-lat1;
+var dLat = x1.toRad();  
+var x2 = lon2-lon1;
+var dLon = x2.toRad();  
+var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);  
+var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+var d = R * c; 
+return d;
 }
