@@ -220,7 +220,7 @@ function parseTripList()
      
         var lt, lg, trainName;
         for (var i = 0; i < mbtaTrips.length; i++) {
-            if(mbtaTrips[i].Position) {
+            if (mbtaTrips[i].Position) {
                 lt = mbtaTrips[i].Position["Lat"];
                 lg = mbtaTrips[i].Position.Long;
                 trainName = mbtaTrips[i].Position.Train;
