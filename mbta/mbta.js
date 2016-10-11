@@ -183,6 +183,23 @@ function connect(st1, st2) {
     redLine.setMap(map);
 }
 
+// Connects Me to Closest station
+function connectMeToStation(loc2) {
+
+    var line = [
+          {lat: myLat, lng: myLng},
+          {lat: loc2.lat, lng: loc2.lg},
+    ];
+    var redLine = new google.maps.Polyline({
+          path: line,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 5
+        });
+    redLine.setMap(map);
+}
+
 // Return a promise from an http request 
 //http://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr
 function httpRequest(method, url) {
@@ -209,6 +226,8 @@ function queryTripList()
                     parseTripList();
                     plotStations();
                     drawLines();
+                    closest = getClosestStation(myLat, myLng);
+                     connectMeToStation(closest);
                 } else {
                     alert("Data not found!");
                 }
@@ -280,7 +299,7 @@ function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
-
+        
         queryTripList();
 }
 
@@ -347,19 +366,21 @@ function createTrainMarker(lat,lg,str, imgUrl, estimates) {
 
 }
 
-function getClosestStation(trainLat, trainLon) {
-    distances = getDistances(trainLat, trainLon);
+function getClosestStation(Lat, Lon) {
+    distances = getDistances(Lat, Lon);
     min = getMinDistance(distances);
     return min;
 }
 
-// returns closest staton based on trains lat and long
-function getDistances(trainLat, trainLon) {
+// returns closest station
+function getDistances(Lat, Lon) {
     distances = [];
     for (i = 0; i < stations.length; i++) {
-        d = getDistance(trainLat, trainLon, stations[i].lat, stations[i].lg);
+        d = getDistance(Lat, Lon, stations[i].lat, stations[i].lg);
         obj = {
             station: stations[i].name,
+            lat: stations[i].lat,
+            lg: stations[i].lg,
             distanceTo: d
         };
         distances.push(obj);
