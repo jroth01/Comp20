@@ -202,11 +202,17 @@ function queryTripList()
 {
         httpRequest('GET', api).then(function (res){
                 mbtaTrips = res.target.response;
-                mbtaTrips = JSON.parse(mbtaTrips);
-                console.log(mbtaTrips);
-                parseTripList();
-                plotStations();
-                drawLines();
+                status = res.currentTarget.status;
+
+                if (status == 200) {
+                    mbtaTrips = JSON.parse(mbtaTrips);
+                    console.log(mbtaTrips);
+                    parseTripList();
+                    plotStations();
+                    drawLines();
+                } else {
+                    alert("Data not found!");
+                }
         }, function(err) {
                 alert("Oh no! error getting stops!");
         });
