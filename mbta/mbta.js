@@ -217,12 +217,15 @@ function parseTripList()
 {      
         // get triplist JSON
         mbtaTrips = mbtaTrips.TripList.Trips
+     
         var lt, lg, trainName;
         for (var i = 0; i < mbtaTrips.length; i++) {
-            lt = mbtaTrips[i].Position.Lat;
-            lg = mbtaTrips[i].Position.Long;
-            trainName = mbtaTrips[i].Position.Train;
-            createMarker(lt,lg, trainName, "train.png");
+            if(mbtaTrips[i].Position) {
+                lt = mbtaTrips[i].Position["Lat"];
+                lg = mbtaTrips[i].Position.Long;
+                trainName = mbtaTrips[i].Position.Train;
+                createMarker(lt,lg, trainName, "train.png", null);
+            }
         }
 }
 
@@ -234,14 +237,17 @@ function upcomingTrains(stationName)
      for (var i = 0; i < mbtaTrips.length; i++) {
         // get predictions
         estimates =  mbtaTrips[i].Predictions;
-        // find prediction specific to station 
-        for (var j = 0; j < estimates.length; j++) {
-            if (estimates[j].Stop == stationName) {
-                upcoming.push ({
-                    trainID: mbtaTrips[i].Position.Train,
-                    arrival: estimates[j].Seconds, 
-                    updated: mbtaTrips[i].Position.Timestamp
-                })
+
+        if (mbtaTrips[i].Position && estimates) {
+            // find prediction specific to station 
+            for (var j = 0; j < estimates.length; j++) {
+                if (estimates[j].Stop == stationName) {
+                    upcoming.push ({
+                        trainID: mbtaTrips[i].Position.Train,
+                        arrival: estimates[j].Seconds, 
+                        updated: mbtaTrips[i].Position.Timestamp
+                    })
+                }
             }
         }
      }
