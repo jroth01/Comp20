@@ -184,11 +184,11 @@ function connect(st1, st2) {
 }
 
 // Connects Me to Closest station
-function connectMeToStation(loc2) {
+function connectMeToStation(closest) {
 
     var line = [
           {lat: myLat, lng: myLng},
-          {lat: loc2.lat, lng: loc2.lg},
+          {lat: closest.lat, lng: closest.lg},
     ];
     var redLine = new google.maps.Polyline({
           path: line,
@@ -227,8 +227,7 @@ function queryTripList()
                     parseTripList();
                     plotStations();
                     drawLines();
-                    closest = getClosestStation(myLat, myLng);
-                    connectMeToStation(closest);
+                    
                 } else {
                     alert("Data not found!");
                 }
@@ -302,7 +301,7 @@ function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
-        
+
         queryTripList();
 }
 
@@ -332,6 +331,8 @@ function getMyLocation() {
         else {
                 alert("Geolocation is not supported by your web browser.  What a shame!");
         }
+
+
 }
 
 function createStationMarker(lat,lg,str, imgUrl, estimates) 
@@ -491,13 +492,16 @@ function renderMap()
         // Update map and go to my current location
         map.panTo(me);
 
+        closest = getClosestStation(myLat, myLng);
+
         // Create a marker
         myMarker = new google.maps.Marker({
                 position: me,
-                title: "Here I Am!"
+                title: "<p>Nearest station is: " + closest.station + "</p>"
         });
         myMarker.setMap(map);
-                
+        
+         connectMeToStation(closest);
         // Open info window on click of marker
         google.maps.event.addListener(myMarker, 'click', function() {
                 infowindow.setContent(myMarker.title);
