@@ -346,21 +346,28 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         newMarker.setMap(map);
         headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
         rows = "";
+        rows_alewife = "";
 
-        headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
-        rows = "";
-
+        rows_braintree = "";
      
         for (i = 0; i < estimates.length; i++) {
-            console.log(estimates[i]["destination"]);
-            editTime(estimates[i].arrival);
+            console.log();
+            estimates[i].arrival = editTime(estimates[i].arrival);
 
-            rows += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
-            estimates[i].updated + "</td></tr>";
+            if (estimates[i]["destination"] == "Alewife") {
+                rows_alewife += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
+                estimates[i].updated + "</td></tr>";
+            }
+            else {
+                rows_braintree += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
+                estimates[i].updated + "</td></tr>";
+            }
+            
         }
 
-        var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<table>" +
-         headers + rows + "</table>"  + "</p>";
+        var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<h1>Alewife</h1><table style=\"height:auto; width:auto;\">" +
+         headers + rows_alewife + "</table>" + "<h1>Braintree</h1><table style=\"height:auto; width: auto;\">" +
+         headers + rows_braintree + "</table>"  + "</p>";
 
            // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
@@ -371,10 +378,10 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
 
 function editTime(timeEstimate) {
     if (timeEstimate >= 60) {
-        timeEstimate= Math.round(timeEstimate / 60) + " minutes";
+        return timeEstimate= Math.round(timeEstimate / 60) + " minutes";
     }
     else {
-        timeEstimate += " seconds";
+        return timeEstimate += " seconds";
     }
 }
 
