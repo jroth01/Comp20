@@ -228,7 +228,7 @@ function queryTripList()
                     plotStations();
                     drawLines();
                     closest = getClosestStation(myLat, myLng);
-                     connectMeToStation(closest);
+                    connectMeToStation(closest);
                 } else {
                     alert("Data not found!");
                 }
@@ -347,27 +347,49 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
         rows = "";
         rows_alewife = "";
-
         rows_braintree = "";
-     
+
+        estimates_alewife = [];
+        estimates_braintree = [];
+
         for (i = 0; i < estimates.length; i++) {
-            console.log();
+
+            // Converts times to minutes if time > 60 secs and adds a label 
             estimates[i].arrival = editTime(estimates[i].arrival);
 
+            // get all the estimates 
             if (estimates[i]["destination"] == "Alewife") {
-                rows_alewife += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
-                estimates[i].updated + "</td></tr>";
-            }
-            else {
-                rows_braintree += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
-                estimates[i].updated + "</td></tr>";
-            }
-            
+                estimates_alewife.push(estimates[i]);
+
+            } else { // else going to braintree 
+                estimates_braintree.push(estimates[i]);
+            }     
         }
 
-        var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<h1>Alewife</h1><table style=\"height:auto; width:auto;\">" +
-         headers + rows_alewife + "</table>" + "<h1>Braintree</h1><table style=\"height:auto; width: auto;\">" +
-         headers + rows_braintree + "</table>"  + "</p>";
+        // Populate html table rows for alewife estimates
+        for (j = 0; j < estimates_alewife.length; j++) {
+            rows_alewife += "<tr><td>" + estimates_alewife[j].trainID + "</td><td>" + estimates_alewife[j].arrival + "</td><td>" + 
+            estimates_alewife[j].updated + "</td></tr>";
+        }
+
+        // Populate html table rows for braintree estimates
+        for (j = 0; j < estimates_braintree.length; j++) {
+            rows_braintree += "<tr><td>" + estimates_braintree[j].trainID + "</td><td>" + estimates_braintree[j].arrival + "</td><td>" +  estimates_braintree[j].updated + "</td></tr>";
+        }
+        
+        var contentString = "<h1>" + newMarker.title + "</h1>";
+        
+        // if there are alewife estimates, append table 
+        if (estimates_alewife.length > 0) {
+            contentString += "<p><h1>To Alewife:</h1><table style=\"height:auto; width:auto;\">" + headers + rows_alewife + "</table>" + "</p>"
+        }
+
+        //if braintree estimates, append them 
+        if (estimates_braintree.length > 0) {
+            contentString +="<p><h1>To Braintree:</h1><table style=\"height:auto; width: auto;\">" +
+             headers + rows_braintree + "</table>"  + "</p>";
+        } 
+
 
            // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
