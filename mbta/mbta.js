@@ -224,6 +224,7 @@ function queryTripList()
                 if (status == 200) {
                     mbtaTrips = JSON.parse(mbtaTrips);
                     console.log(mbtaTrips);
+
                     parseTripList();
                     plotStations();
                     drawLines();
@@ -293,7 +294,7 @@ function upcomingTrains(stationName)
             }
         }
      }
-
+         upcoming.sort(sort_by("arrival", false, parseInt));
      return upcoming;
 }
 // Initialize the map
@@ -507,6 +508,21 @@ function renderMap()
                 infowindow.setContent(myMarker.title);
                 infowindow.open(map, myMarker);
         });
+}
+
+// handy dandy sort function i found online
+// code from http://stackoverflow.com/questions/979256/sorting-an-array-of-javascript-objects
+var sort_by = function(field, reverse, primer){
+
+   var key = primer ? 
+       function(x) {return primer(x[field])} : 
+       function(x) {return x[field]};
+
+   reverse = !reverse ? 1 : -1;
+
+   return function (a, b) {
+       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+     } 
 }
 
 // Using haversine formula
