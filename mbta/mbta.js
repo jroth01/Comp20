@@ -223,6 +223,7 @@ function queryTripList()
 
                 if (status == 200) {
                     mbtaTrips = JSON.parse(mbtaTrips);
+                    console.log(mbtaTrips);
                     parseTripList();
                     plotStations();
                     drawLines();
@@ -272,18 +273,22 @@ function getEstimates(trip, predictions) {
 function upcomingTrains(stationName)
 {
     var estimates;
+    var destination;
     var upcoming =[];
     // For each train 
      for (var i = 0; i < mbtaTrips.length; i++) {
         // get predictions
+     
         estimates =  mbtaTrips[i].Predictions;
 
         if (mbtaTrips[i].Position && estimates) {
             // find prediction specific to station 
+            destination = mbtaTrips[i].Destination;
             trainEst = getEstimates(mbtaTrips[i], estimates);
-            console.log(trainEst);
+
             for (var j = 0; j < trainEst.length; j++) {
                 if (trainEst[j].stop == stationName) {
+                    trainEst[j]["destination"] = destination;
                     upcoming.push(trainEst[j]);
                 } 
             }
@@ -337,6 +342,7 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
                 title: str,
                 icon: imgUrl
         });
+
         newMarker.setMap(map);
         headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
         rows = "";
@@ -346,12 +352,8 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
 
      
         for (i = 0; i < estimates.length; i++) {
-            if (estimates[i].arrival >= 60) {
-                estimates[i].arrival = Math.round(estimates[i].arrival / 60) + " minutes";
-            }
-            else {
-                estimates[i].arrival += " seconds";
-            }
+            console.log(estimates[i]["destination"]);
+            editTime(estimates[i].arrival);
 
             rows += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
             estimates[i].updated + "</td></tr>";
@@ -365,6 +367,15 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
                 infowindow.setContent(contentString);
                 infowindow.open(map, newMarker);
         });
+}
+
+function editTime(timeEstimate) {
+    if (timeEstimate >= 60) {
+        timeEstimate= Math.round(timeEstimate / 60) + " minutes";
+    }
+    else {
+        timeEstimate += " seconds";
+    }
 }
 
 // Create a marker on the map
@@ -420,7 +431,6 @@ function getMinDistance(distances) {
             min = distances[j];
         }
     }
-    console.log("MIN: " + min);
     return min;
 }
 
