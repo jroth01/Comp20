@@ -281,13 +281,11 @@ function upcomingTrains(stationName)
         if (mbtaTrips[i].Position && estimates) {
             // find prediction specific to station 
             trainEst = getEstimates(mbtaTrips[i], estimates);
-            
-            for (var j = 0; j < trainEst; j++) {
+            console.log(trainEst);
+            for (var j = 0; j < trainEst.length; j++) {
                 if (trainEst[j].stop == stationName) {
-                     console.log("FOUND MATCH");
-                    console.log(trainEst);
                     upcoming.push(trainEst[j]);
-                }
+                } 
             }
         }
      }
@@ -312,14 +310,14 @@ function plotStations()
         lt = stations[i].lat;
         lg = stations[i].lg;
         estimates = upcomingTrains(name);
-        console.log(estimates);
-        createMarker(lt,lg, name, "mbta.png", estimates);
+        createStationMarker(lt,lg, name, "mbta.png", estimates);
     }
 }
 
 // Get my current position
 function getMyLocation() {
-        if (navigator.geolocation) { // the navigator.geolocation object is supported on your browser
+        if (navigator.geolocation) { 
+        // the navigator.geolocation object is supported on your browser
                 navigator.geolocation.getCurrentPosition(function(position) {
                         myLat = position.coords.latitude;
                         myLng = position.coords.longitude;
@@ -329,6 +327,44 @@ function getMyLocation() {
         else {
                 alert("Geolocation is not supported by your web browser.  What a shame!");
         }
+}
+
+function createStationMarker(lat,lg,str, imgUrl, estimates) 
+{
+     var coordinates = new google.maps.LatLng(lat, lg);
+        var newMarker = new google.maps.Marker({
+                position: coordinates,
+                title: str,
+                icon: imgUrl
+        });
+        newMarker.setMap(map);
+        headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
+        rows = "";
+
+        headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
+        rows = "";
+
+     
+        for (i = 0; i < estimates.length; i++) {
+            if (estimates[i].arrival >= 60) {
+                estimates[i].arrival = Math.round(estimates[i].arrival / 60) + " minutes";
+            }
+            else {
+                estimates[i].arrival += " seconds";
+            }
+
+            rows += "<tr><td>" + estimates[i].trainID + "</td><td>" + estimates[i].arrival + "</td><td>" + 
+            estimates[i].updated + "</td></tr>";
+        }
+
+        var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<table>" +
+         headers + rows + "</table>"  + "</p>";
+
+           // Open info window on click of marker
+        google.maps.event.addListener(newMarker, 'click', function() {
+                infowindow.setContent(contentString);
+                infowindow.open(map, newMarker);
+        });
 }
 
 // Create a marker on the map
@@ -343,21 +379,10 @@ function createTrainMarker(lat,lg,str, imgUrl, estimates) {
         });
         newMarker.setMap(map);
 
-
-        headers = "<th>Station</th><th>Arrival</th><th>Updated</td>";
-        rows = "";
-
-        for (i = 0; i < estimates.length; i++) {
-            rows += "<tr><td>" + estimates[i].stop + "</td><td>" + estimates[i].arrival + "</td><td>" + 
-            estimates[i].updated + "</td></tr>";
-        }
-
         closest = getClosestStation(lat,lg);
 
-          //var contentString = "<h1>" + newMarker.title + "</h1><p>" + "<table>" +
-         // headers + rows + "</table>"  + "</p>";
+         var contentString = "<h1> Train " + newMarker.title + "</h1><p>" + "Nearest station is: " + closest.station + "</p>"
 
-         var contentString = "<h1>" + newMarker.title + "</h1><p>" + closest.station + "</p>"
          // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
                 infowindow.setContent(contentString);
