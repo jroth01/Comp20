@@ -200,41 +200,34 @@ function connectMeToStation(closest) {
     redLine.setMap(map);
 }
 
-// Return a promise from an http request 
-//http://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr
-function httpRequest(method, url) {
-        //returns a promise
-    return new Promise(function (resolve, reject) {
-        var xhr = new XMLHttpRequest();
-        xhr.open(method, url);
-        xhr.onload = resolve;
-        xhr.onerror = reject;
-        xhr.send();
-    });
+function loadMBTA(method, url) {
+            // Step 1: create an instance of XMLHttpRequest
+            request = new XMLHttpRequest();
+            // Step 2: Make request to remote resource
+            request.open(method, url, true);
+            // Step 3: Create handler function to do something with data in response
+            request.onreadystatechange = handleReq;
+            // Step 4: Send the request
+            request.send();
 }
 
-// Get each stop, store in array
-// map over the stops, put down markers
-function queryTripList()
-{
-        httpRequest('GET', api).then(function (res){
-                mbtaTrips = res.target.response;
-                status = res.currentTarget.status;
-
-                if (status == 200) {
-                    mbtaTrips = JSON.parse(mbtaTrips);
-
-                    parseTripList();
-                    plotStations();
-                    drawLines();
-                    
-                } else {
-                    alert("Data not found!");
-                }
-        }, function(err) {
-                alert("Oh no! error getting stops!");
-        });
-}
+function handleReq() {
+            // Step 5: When data is received, get it and do something with it
+            if (request.readyState == 4 && request.status == 200) {
+                // Step 5A: get the response text
+                mbtaTrips = request.responseText;
+                // Step 5B: parse the text into JSON
+                mbtaTrips= JSON.parse(mbtaTrips);
+                
+                parseTripList();
+                plotStations();
+                drawLines();
+            
+            }
+            else if (request.status == 404) {
+                location.reload();
+            }
+        }
 
 // Parse JSON and mark each train on the map 
 function parseTripList()
@@ -302,7 +295,7 @@ function init()
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         getMyLocation();
 
-        queryTripList();
+        loadMBTA('GET', api);
 }
 
 // Plot each station 
