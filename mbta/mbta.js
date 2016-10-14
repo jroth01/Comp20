@@ -223,7 +223,6 @@ function queryTripList()
 
                 if (status == 200) {
                     mbtaTrips = JSON.parse(mbtaTrips);
-                    console.log(mbtaTrips);
 
                     parseTripList();
                     plotStations();
