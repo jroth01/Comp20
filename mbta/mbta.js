@@ -227,7 +227,7 @@ function handleReq() {
             else if (request.status == 404) {
                 location.reload();
             }
-        }
+}
 
 // Parse JSON and mark each train on the map 
 function parseTripList()
@@ -314,7 +314,7 @@ function plotStations()
 // Get my current position
 function getMyLocation() {
         if (navigator.geolocation) { 
-        // the navigator.geolocation object is supported on your browser
+            // the navigator.geolocation object is supported on your browser
                 navigator.geolocation.getCurrentPosition(function(position) {
                         myLat = position.coords.latitude;
                         myLng = position.coords.longitude;
@@ -324,8 +324,6 @@ function getMyLocation() {
         else {
                 alert("Geolocation is not supported by your web browser.  What a shame!");
         }
-
-
 }
 
 function createStationMarker(lat,lg,str, imgUrl, estimates) 
@@ -338,7 +336,7 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         });
 
         newMarker.setMap(map);
-        headers = "<th>Train ID</th><th>Arrival</th><th>Updated</td>";
+        headers = "<th>Train ID</th><th>Arrival</th>";
         rows = "";
         rows_alewife = "";
         rows_braintree = "";
@@ -362,13 +360,12 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
 
         // Populate html table rows for alewife estimates
         for (j = 0; j < estimates_alewife.length; j++) {
-            rows_alewife += "<tr><td>" + estimates_alewife[j].trainID + "</td><td>" + estimates_alewife[j].arrival + "</td><td>" + 
-            estimates_alewife[j].updated + "</td></tr>";
+            rows_alewife += "<tr><td>" + estimates_alewife[j].trainID + "</td><td>" + estimates_alewife[j].arrival + "</td></tr>";
         }
 
         // Populate html table rows for braintree estimates
         for (j = 0; j < estimates_braintree.length; j++) {
-            rows_braintree += "<tr><td>" + estimates_braintree[j].trainID + "</td><td>" + estimates_braintree[j].arrival + "</td><td>" +  estimates_braintree[j].updated + "</td></tr>";
+            rows_braintree += "<tr><td>" + estimates_braintree[j].trainID + "</td><td>" + estimates_braintree[j].arrival + "</td></tr>";
         }
         
         var contentString = "<h1>" + newMarker.title + "</h1>";
@@ -404,7 +401,6 @@ function editTime(timeEstimate) {
 // Create a marker on the map
 function createTrainMarker(lat,lg,str, imgUrl, estimates) {
         // Create a marker
-      
         var coordinates = new google.maps.LatLng(lat, lg);
         var newMarker = new google.maps.Marker({
                 position: coordinates,
@@ -460,7 +456,6 @@ function getMinDistance(distances) {
 // Create a marker on the map
 function createMarker(lat,lg,str, imgUrl, estimates) {
         // Create a marker
-      
         var coordinates = new google.maps.LatLng(lat, lg);
         var newMarker = new google.maps.Marker({
                 position: coordinates,
@@ -537,4 +532,13 @@ var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
 var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 var d = R * c; 
 return d;
+}
+
+//https://glenngeenen.be/javascript-seconds-to-time-string/
+function formatTime (n) {
+
+    var hours = Math.floor(n._value/60/60),
+        minutes = Math.floor((n._value - (hours * 60 * 60))/60),
+        seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
+    return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
 }
