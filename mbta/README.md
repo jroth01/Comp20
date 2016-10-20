@@ -19,7 +19,7 @@ real-time train information. Instead, I give an alert and tell the user to
 do a hard refresh of the page. I recognize this is "cheap". It would be more aethetically appealing to load each of the station makers, and on click, have each display some kind of "data not found" message. This is
 something i would like to come back to and fix. 
 
-- The function "createStationMarker()" is a laughably horrible abomination. I've been under a severe time crunch with my coursework this week, and that one
+- The function "createStationMarker()" in mbta.js is a laughably horrible abomination. I've been under a severe time crunch with my coursework this week, and that one
 slipped through the cracks in the middle of the night. I plan to refactor this using some sort of map function. 
 
 Cool stuff:
