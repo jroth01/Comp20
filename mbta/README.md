@@ -16,9 +16,7 @@ Needs work:
 - Handling 404 error. I made the decision to not load the station markers if
 the client gets a 404, given that the site is only useful if it can show
 real-time train information. Instead, I give an alert and tell the user to
-do a hard refresh of the page. I recognize this is "cheap". 
-
-It would be more aethetically appealing to load each of the station makers, and on click, have each display some kind of "data not found" message. This is
+do a hard refresh of the page. I recognize this is "cheap". It would be more aethetically appealing to load each of the station makers, and on click, have each display some kind of "data not found" message. This is
 something i would like to come back to and fix. 
 
 - The function "createStationMarker()" is a laughably horrible abomination. I've been under a severe time crunch with my coursework this week, and that one
