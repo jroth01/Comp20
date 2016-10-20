@@ -234,7 +234,7 @@ function handleReq() {
                 var msg = "MBTA Data not found :(\n\n";
                     msg += "Try reloading the browser again\n";
                 alert(msg);
-            
+
                 //location.reload();
             }
 }
@@ -408,13 +408,12 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
              headers + rows_ashmont + "</table>"  + "</p>";
         } 
 
-
         //if braintree estimates, append them 
         if (estimates_braintree.length > 0) {
             contentString +="<p><h1>To Braintree:</h1><table style=\"height:auto; width: auto;\">" +
              headers + rows_braintree + "</table>"  + "</p>";
         } 
-
+        
            // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
                 infowindow.setContent(contentString);
