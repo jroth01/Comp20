@@ -185,7 +185,7 @@ function connect(st1, st2) {
     redLine.setMap(map);
 }
 
-/* Connects client to Closest station */
+/* Connects client to closest station */
 function connectMeToStation(closest) {
 
     var line = [
@@ -413,7 +413,7 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
             contentString +="<p><h1>To Braintree:</h1><table style=\"height:auto; width: auto;\">" +
              headers + rows_braintree + "</table>"  + "</p>";
         } 
-        
+
            // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
                 infowindow.setContent(contentString);
@@ -569,7 +569,7 @@ function getDistance(lat1, lon1, lat2, lon2)
     return d;
 }
 
-/* Returns formatted time 
+/* Returns formatted time (NOT USED)
  * SOURCE: https://glenngeenen.be/javascript-seconds-to-time-string/
 */
 function formatTime (n) {
