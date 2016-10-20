@@ -27,7 +27,7 @@ Cool stuff:
 - Clicking on a train will tell the user which station that train is closest to
 - Each train marker notes that train's ID number 
 - Made train schedules broken into two tables for each station: one for trains
-headed to Alewife and another table for trains headed to braintree.
+headed to Alewife and another table for trains headed to Ashmont / Braintree.
 - Train schedules list the train id, arrival time, and the time the trip info 
 was last updated
 - Schedules sorted in ascending order by shortest arrival time
