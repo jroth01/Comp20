@@ -1,11 +1,10 @@
-// API 
-var myLat = 42.352271;
+var myLat = 42.352271; // initialized to South Station in Boston
 var myLng = -71.05524200000001;
 var api = "https://rocky-taiga-26352.herokuapp.com/redline.json"
 var mbtaTrips;
 var me = new google.maps.LatLng(myLat, myLng);
 var myOptions = {
-                        zoom: 13, // The larger the zoom number, the bigger the zoom
+                        zoom: 13, 
                         center: me,
                         mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
@@ -13,7 +12,7 @@ var map;
 var myMarker;
 var infowindow = new google.maps.InfoWindow();
 
-
+/* Array of MBTA red line stations */
 var stations = [
 {
     name: "South Station",
@@ -132,12 +131,14 @@ var stations = [
 }
 ];
 
+/* Returns a station */
 function getStationByName(name) {
   return stations.filter(
       function(stations){ return stations.name == name}
   );
 }
 
+/* Draws polylines connecting each station on the MBTA red line  */
 function drawLines() {
     connect("Alewife", "Davis");
     connect("Davis", "Porter Square");
@@ -152,20 +153,21 @@ function drawLines() {
     connect("Broadway", "Andrew");
     connect("Andrew", "JFK/UMass");
 
-    //right fork 
+    /* At this point, there is a right fork  on the map to Braintree */
     connect("JFK/UMass", "North Quincy");
     connect("North Quincy", "Wollaston");
     connect("Wollaston", "Quincy Center");
     connect("Quincy Center", "Quincy Adams");
     connect("Quincy Adams", "Braintree");
 
-    // left fork
+    /* At this point, there is a left fork  on the map to Ashmont */
     connect("JFK/UMass", "Savin Hill");
     connect("Savin Hill", "Fields Corner");
     connect("Fields Corner", "Shamut");
     connect("Shamut", "Ashmont");
 }
 
+/* Connects two stations */
 function connect(st1, st2) {
     var station1 = getStationByName(st1)[0];
     var station2 = getStationByName(st2)[0];
@@ -183,7 +185,7 @@ function connect(st1, st2) {
     redLine.setMap(map);
 }
 
-// Connects Me to Closest station
+/* Connects client to Closest station */
 function connectMeToStation(closest) {
 
     var line = [
@@ -200,6 +202,7 @@ function connectMeToStation(closest) {
     redLine.setMap(map);
 }
 
+/* Sends a request to fetch MBTA data from api */
 function loadMBTA(method, url) {
             // Step 1: create an instance of XMLHttpRequest
             request = new XMLHttpRequest();
@@ -211,6 +214,7 @@ function loadMBTA(method, url) {
             request.send();
 }
 
+/* Handles the request */
 function handleReq() {
             // Step 5: When data is received, get it and do something with it
             if (request.readyState == 4 && request.status == 200) {
@@ -220,16 +224,22 @@ function handleReq() {
                 mbtaTrips= JSON.parse(mbtaTrips);
                 
                 parseTripList();
+                console.log(mbtaTrips);
                 plotStations();
                 drawLines();
             
             }
-            else if (request.status == 404) {
-                location.reload();
+            else if (request.readyState == 4 && request.status == 404) {
+
+                var msg = "MBTA Data not found :(\n\n";
+                    msg += "Try reloading the browser again\n";
+                alert(msg);
+            
+                //location.reload();
             }
 }
 
-// Parse JSON and mark each train on the map 
+/* Parse JSON and mark each train on the map */
 function parseTripList()
 {      
         // get triplist JSON
@@ -246,6 +256,7 @@ function parseTripList()
         }
 }
 
+/* Returns a list of estimates for a particular trip */
 function getEstimates(trip, predictions) {
     var upcoming = [];
     for (var j = 0; j < predictions.length; j++) 
@@ -262,6 +273,7 @@ function getEstimates(trip, predictions) {
     return upcoming;
 }
 
+/* Returns upcoming trains for a particular station */
 function upcomingTrains(stationName)
 {
     var estimates;
@@ -289,7 +301,8 @@ function upcomingTrains(stationName)
          upcoming.sort(sort_by("arrival", false, parseInt));
      return upcoming;
 }
-// Initialize the map
+
+/* Initializes the map */
 function init()
 {
         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
@@ -298,7 +311,7 @@ function init()
         loadMBTA('GET', api);
 }
 
-// Plot each station 
+/* Plots each station */
 function plotStations() 
 {
     var lt, lg, name, estimates;
@@ -311,7 +324,7 @@ function plotStations()
     }
 }
 
-// Get my current position
+/* Gets my current position */
 function getMyLocation() {
         if (navigator.geolocation) { 
             // the navigator.geolocation object is supported on your browser
@@ -326,6 +339,10 @@ function getMyLocation() {
         }
 }
 
+/* Creates marker for a particular station with scheduling info 
+* This is a poorly written quick and dirty function with repeated code
+* I'd like to come back later and fix this when I have time. 
+*/
 function createStationMarker(lat,lg,str, imgUrl, estimates) 
 {
      var coordinates = new google.maps.LatLng(lat, lg);
@@ -340,9 +357,11 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         rows = "";
         rows_alewife = "";
         rows_braintree = "";
+        rows_ashmont = "";
 
         estimates_alewife = [];
         estimates_braintree = [];
+        estimates_ashmont = []
 
         for (i = 0; i < estimates.length; i++) {
 
@@ -353,7 +372,10 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
             if (estimates[i]["destination"] == "Alewife") {
                 estimates_alewife.push(estimates[i]);
 
-            } else { // else going to braintree 
+            } else if (estimates[i]["destination"] == "Ashmont"){
+                estimates_ashmont.push(estimates[i]);
+            }
+            else { // else going to braintree 
                 estimates_braintree.push(estimates[i]);
             }     
         }
@@ -361,6 +383,11 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         // Populate html table rows for alewife estimates
         for (j = 0; j < estimates_alewife.length; j++) {
             rows_alewife += "<tr><td>" + estimates_alewife[j].trainID + "</td><td>" + estimates_alewife[j].arrival + "</td></tr>";
+        }
+
+        // Populate html table rows for alewife estimates
+        for (j = 0; j < estimates_ashmont.length; j++) {
+            rows_ashmont += "<tr><td>" + estimates_ashmont[j].trainID + "</td><td>" + estimates_ashmont[j].arrival + "</td></tr>";
         }
 
         // Populate html table rows for braintree estimates
@@ -375,12 +402,18 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
             contentString += "<p><h1>To Alewife:</h1><table style=\"height:auto; width:auto;\">" + headers + rows_alewife + "</table>" + "</p>"
         }
 
+        //if ashmont estimates, append them 
+        if (estimates_ashmont.length > 0) {
+            contentString +="<p><h1>To Ashmont:</h1><table style=\"height:auto; width: auto;\">" +
+             headers + rows_ashmont + "</table>"  + "</p>";
+        } 
+
+
         //if braintree estimates, append them 
         if (estimates_braintree.length > 0) {
             contentString +="<p><h1>To Braintree:</h1><table style=\"height:auto; width: auto;\">" +
              headers + rows_braintree + "</table>"  + "</p>";
         } 
-
 
            // Open info window on click of marker
         google.maps.event.addListener(newMarker, 'click', function() {
@@ -389,6 +422,7 @@ function createStationMarker(lat,lg,str, imgUrl, estimates)
         });
 }
 
+/* Returns time in minutes if applicable */
 function editTime(timeEstimate) {
     if (timeEstimate >= 60) {
         return timeEstimate= Math.round(timeEstimate / 60) + " minutes";
@@ -398,7 +432,7 @@ function editTime(timeEstimate) {
     }
 }
 
-// Create a marker on the map
+/* Creates a train marker on the map */
 function createTrainMarker(lat,lg,str, imgUrl, estimates) {
         // Create a marker
         var coordinates = new google.maps.LatLng(lat, lg);
@@ -421,13 +455,14 @@ function createTrainMarker(lat,lg,str, imgUrl, estimates) {
 
 }
 
+/* Gets the nearest MBTA station to a particular lat and long */
 function getClosestStation(Lat, Lon) {
     distances = getDistances(Lat, Lon);
     min = getMinDistance(distances);
     return min;
 }
 
-// returns closest station
+/* Gets the distances between a location and each of the MBTA stations */
 function getDistances(Lat, Lon) {
     distances = [];
     for (i = 0; i < stations.length; i++) {
@@ -443,6 +478,7 @@ function getDistances(Lat, Lon) {
     return distances;
 }
 
+/* Returns the minimum distance from a list */
 function getMinDistance(distances) {
     min = distances[0];
     for (j = 1; j < distances.length; j++) {
@@ -453,7 +489,7 @@ function getMinDistance(distances) {
     return min;
 }
 
-// Create a marker on the map
+/* Create a generic marker on the map */
 function createMarker(lat,lg,str, imgUrl, estimates) {
         // Create a marker
         var coordinates = new google.maps.LatLng(lat, lg);
@@ -472,7 +508,7 @@ function createMarker(lat,lg,str, imgUrl, estimates) {
 
 }
 
-// Render the map
+/* Renders the map */
 function renderMap()
 {
         me = new google.maps.LatLng(myLat, myLng);
@@ -497,8 +533,9 @@ function renderMap()
         });
 }
 
-// handy dandy sort function i found online
-// code from http://stackoverflow.com/questions/979256/sorting-an-array-of-javascript-objects
+/* Awesome sort function I found online
+ * SOURCE: http://stackoverflow.com/questions/979256/sorting-an-array-of-javascript-objects 
+ */
 var sort_by = function(field, reverse, primer){
 
    var key = primer ? 
@@ -512,31 +549,31 @@ var sort_by = function(field, reverse, primer){
      } 
 }
 
-// Using haversine formula
-// code from  http://www.movable-type.co.uk/scripts/latlong.html
+/* Returns distance between two coordinates using haversine formula 
+ * SOURCE:  http://www.movable-type.co.uk/scripts/latlong.html
+ */
 function getDistance(lat1, lon1, lat2, lon2)
 {
     Number.prototype.toRad = function() {
    return this * Math.PI / 180;
-} 
-
-var R = 6371; // km 
-//has a problem with the .toRad() method below.
-var x1 = lat2-lat1;
-var dLat = x1.toRad();  
-var x2 = lon2-lon1;
-var dLon = x2.toRad();  
-var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
-                Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);  
-var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-var d = R * c; 
-return d;
+    } 
+    var R = 6371; // km 
+    var x1 = lat2-lat1;
+    var dLat = x1.toRad();  
+    var x2 = lon2-lon1;
+    var dLon = x2.toRad();  
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                    Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);  
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; 
+    return d;
 }
 
-//https://glenngeenen.be/javascript-seconds-to-time-string/
+/* Returns formatted time 
+ * SOURCE: https://glenngeenen.be/javascript-seconds-to-time-string/
+*/
 function formatTime (n) {
-
     var hours = Math.floor(n._value/60/60),
         minutes = Math.floor((n._value - (hours * 60 * 60))/60),
         seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
