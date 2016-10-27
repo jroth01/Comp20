@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+        <title>Captain's Log</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script>
+        $(document).ready(function () {
+            
+                // Get messages array from local storage 
+                var stored = JSON.parse(localStorage.getItem("messages")); 
+
+                // Pump each of the messages into the log using JQuery
+                $.each(stored, function( key, value ) {
+                    $( "#log" ).prepend("<p>" + value.date + " - " + value.text + "</p>");
+                }); 
+
+                $("input").on("keyup",function search(e) {
+                        
+                        // If user hits enter after typing into text field
+                        if(e.keyCode == 13) {
+
+                                var d = new Date(Date.now());
+                                var now = d.toString();
+                                var msg = { 
+                                    text:$(this).val(),
+                                    date: now
+                                };
+
+                                // Immediately push to page
+                                $( "#log" ).prepend("<p>" + msg.date + " - " + msg.text + "</p>");
+
+                                // Store locally 
+                                stored.push(msg);
+                                localStorage.setItem("messages", JSON.stringify(stored));
+                        }
+                });
+        });
+        </script>
+</head>
+<body>
+        <h1>Captain's Log</h1>
+        <h3>New entry: <input type="text" id="msg" name="msg" size="30" /></h3>
+        <div id="log"></div>
+</body>
+</html>
