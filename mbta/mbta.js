@@ -1,6 +1,6 @@
 var myLat = 42.352271; // initialized to South Station in Boston
 var myLng = -71.05524200000001;
-var api = "https://rocky-taiga-26352.herokuapp.com/redline.json"
+var api = "https://radiant-chamber-20159.herokuapp.com/redline"
 var mbtaTrips;
 var me = new google.maps.LatLng(myLat, myLng);
 var myOptions = {
