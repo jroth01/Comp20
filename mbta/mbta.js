@@ -220,6 +220,7 @@ function handleReq() {
             if (request.readyState == 4 && request.status == 200) {
                 // Step 5A: get the response text
                 mbtaTrips = request.responseText;
+
                 // Step 5B: parse the text into JSON
                 mbtaTrips= JSON.parse(mbtaTrips);
                 
