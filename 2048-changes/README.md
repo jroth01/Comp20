@@ -6,7 +6,8 @@ to keep things organized on my end.
 
 The heroku app on the server side has the following endpoints:
 
-GET / - Home, the root, the index in HTML. Accessing this on a web browser 
+## Endpoints 
+**GET /** - Home, the root, the index in HTML. Accessing this on a web browser 
 displays list of all the 2048 game scores for all players sorted in descending 
 order by score. I did descending order simply by using the syntax given by
 MongoDB documentation, where listing the parameter field and a value of -1 
@@ -19,26 +20,27 @@ score. I formatted this page using Bootstrap. On load, the page makes a get
 request to /allscores. I used JQuery to iterate through the response array
 and populate the table. 
 
-POST /submit.json - Submits final score and grid for a terminated 2048 game 
+**POST /submit.json** - Submits final score and grid for a terminated 2048 game 
 from any domain. The mandatory fields and exact field names for submission to 
 this API are username, score, and grid. Successful submission of these three 
 pieces of data adds one entry into the collection scores in Mongo. 
 If a submission is missing any one of the data fields the record is not entered. 
 Cross-origin resource sharing is enabled. 
 
-GET /scores.json - Returns a JSON array of objects for a specified player with 
+**GET /scores.json** - Returns a JSON array of objects for a specified player with 
 the scores sorted in descending order. If username is empty, returns empty JSON 
 array []
 
+## MongoDB 
 In the Mongo Database I provisioned with Heroku, there is only one collection -
 scores. 
 
 Each document in the scores collection contains:
 
-username (a string) - Name of player for the game
-score (a number) - The player's score
-grid (JSON) - The final grid when game is terminated
-created_at (a timestamp) - Timestamp when new document was created, 
+* username (a string) - Name of player for the game
+* score (a number) - The player's score
+* grid (JSON) - The final grid when game is terminated
+* created_at (a timestamp) - Timestamp when new document was created, 
 entered into database
 
 The timestamp is added on the server side, just before I insert a new
@@ -50,12 +52,12 @@ All I did here was find where the game ends, so I could send off the
 score and grid info to a database before the grid is reset. I just modified 
 game_manager.js.
 
-When the game ends, I modified the code to prompt the user for theirname. 
+When the game ends, I modified the code to prompt the user for their name. 
 If they don't enter a name, I never send a post request. (I double check again 
 on the server side as well).
 
-If the user enters their name, I send a post request to /submit.json with
-the username, score , and grid info.
+Else, I send a post request to /submit.json with the username, score , and grid 
+info.
 
 # Cool stuff
         
