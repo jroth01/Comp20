@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+<head>
+        <title>Security</title>
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+   <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+<script type="text/javascript" src="https://download.affectiva.com/js/3.1/affdex.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.17.0/vis.min.js"></script>
+</head>
+<style>body {font-size: 20px;} .tab { margin-left: 40px; }</style>
+<body>
+        <div class="jumbotron text-center">
+                <div class="container">
+                        <h1>Security Review</h1>
+                        <p>Comp20 Hw4 2048</p>
+                </div>
+        </div>
+        <div class="container">
+                <h1>Introduction</h1>
+                <p >The product being reviewed for security vulnerabilities is a NodeJS web application that adds data persistence to the popular game 2048. The server accepts final scores and game grids, and adds them to a collection in a MongoDB database.</p>
+                <p >This application was made by one of my fellow classmates as part of a homework assignment. The assignment mentioned nothing about web security, and the topic had not yet been
+                covered in the course when the assignment was given. </p>
+                <p > <a href="https://scoreboard2048.herokuapp.com/">Link to my partner's app on Heroku</a></p>
+                <p >I was tasked with examining the security vulnerabilities my partner's web app by performing
+                various attacks. 
+                </p>
+        </div>
+        <div class="container">
+                <h1>Methodology</h1>
+                <p>
+                I went through the <a href="https://www.owasp.org/index.php/Top_10_2013-Top_10">Open Web Application Security Project's list of top 10 vulnerabilities</a> to get ideas.</p>
+                <p>I narrowed down the list based on the scope of the application (for example, there is no authentication). Then, I made a short list of which I could try, and chose the ones with the worst implications. 
+                I first used the black box technique - without looking at the code, I asked myself what I could get away with
+                    and tried attacks based on basic knowledge of the project specification. Then, I looked at the code
+                    to see why the attacks were successful, and what could be done to prevent similar attacks</p>
+
+                <p>For the first two attacks, I used PostMan to inject data and javascript code. For the third,
+                I exploited a known flaw with querying MongoDB if the input isn't sanitized for special characters
+                like brackets and dollar signs. 
+                </p>
+                <p>While there are great tools like Burp suite that do automated testing, I wanted to
+                    do the attacks by hand to get a better feel for how attacks work.
+                </p>
+        </div>
+
+
+        </div>
+         <div class="container">
+                <h1>Abstract of Findings</h1>
+                <p> There were three major vulnerabilities.</p>
+                <p>1. <strong>NoSQL Injection</strong>: Attackers can inject undesirable content in the database.</p>
+            <p>2. <strong>Cross-site Scripting (XSS): </strong>Attackers can put malicious code in the database / hijack client view</p>
+            <p>3. <strong>Sensitive Data Exposure: </strong>Attackers can access sensitive information from the databse.</p>
+            <h2 class="text-center">Summary</h2>
+                <table class="table">
+                    <th>Category</th>
+                     <th>Location in App</th>
+                     <th>Severity in Context of App</th>
+                     <tr>
+                    <td>NoSQL Injection </td>
+                    <td>/submit.json</td>
+                    <td>HIGH</td>
+                </tr>
+                <tr>
+                    <td>Cross-site Scripting (XSS)</td>
+                     <td>/submit.json</td>
+                    <td>HIGH</td>
+                </tr>
+                <tr>
+                     <td>Sensitive Data Exposure</td>
+                      <td>/scores.json</td>
+                    <td>MODERATE</td>
+                 </tr>
+                </table>
+        </div>
+        <div class="container">
+                <h1>Primary Issues Found </h1>
+       
+                <h2 class="text-center">1. NoSQL Injection</h2>
+                <h3>Location</h3>
+                <p>/submit.json</p>
+                <h3>Severity</h3>
+                <h4>HIGH</h4>
+                <p><blockquote>"Injection can result in data loss or corruption, lack of accountability, or denial of access. Injection can sometimes lead to complete host takeover." - Open Web Application Security Project </blockquote></p>
+                <h3>Description</h3>
+               <p>I was able to inject a string containing an HTML image tag into the "score" field while submitting a new entry to the scores collection via POST /submit.json. Since the query string parameters are only validated to not be undefined, an attacker can submit any text they wish.</p>
+
+                <p>I submitted the following JSON object using PostMan:</p>
+             
+
+               <p><code>
+                {<br>"username":"Spagget",<br>"score":"&ltem&gtBut what his application wasn't expecting was a surprise visit from Spagget!&ltem&gt"&ltimg src='https://media0.giphy.com/media/nGybKUNCAX0cM/200_s.gif/&gt",<br>"grid":"some object"<br>}</code> </p>
+                <p>The entries from the scores collection are rendered on the app's homepage, so all users will
+                see the image.</p>
+                <p>While this was a silly example, it underscores the fact that I could bypass the entire purpose of the application, which is to fairly and accurately report scores from a game. I could inject offensive content that
+                        all users of the application would see immediately - images, articles, links, videos, HTML, styling rules for the page, etc. Malicious content indicates a lack of accountability</p>
+                <h3>Proof</h3>
+
+                <img class="img-responsive" src="spagget.png"/>
+
+                <h3>Resolution</h3>
+                <p>A simple solution is to strip HTML element tags open and close tags (&lt; or &gt;) on the server side when a POST request is sent to the /submit.json endpoint. Pass the body of the request into a function that removes tags and replaces them with escaped characters or removes them entirely</p>
+                <h2 class="text-center">2. Cross-site scripting (XSS)</h2>
+                <h3>Location</h3>
+                <p>/submit.json</p>
+                <h3>Severity</h3>
+                <h4>HIGH</h4>
+                <p><blockquote>"Attackers can execute scripts in a victim’s browser to hijack user sessions, deface web sites, insert hostile content, redirect users, hijack the user’s browser using malware, etc." - Open Web Application Security Project</blockquote></p>
+                <p>While some security websites I've seen rank XSS
+                 attacks as moderate, I would argue that for this
+                    application, the severity is very high.</p>
+                  <h3>Description</h3>
+                  <p>I was able to inject a nasty string containing Javascript code into the "score" field while submitting a new entry to the scores collection via POST /submit.json.</p>
+                  <p>The script injects a callback so that whenever the home page is loaded, the HTML body is overwritten with
+                    a video of the Star Spangled banner, and the client begins rapidly sending infinite post requests to the /submit.json endpoint. I could have increased the number of requests per second to as fast as possible in an infinite loop, but the browser would probably freeze and we wouldn't get the dramatic effect of having a counter show you how many requests are being senton your behalf. This script emulates a DDOS, where each
+                    client visiting the site is hijacked to function like an attacker. </p>
+                    <p> You can imagine that if you had millions of people visitng your site at a time, the server
+                        could get overloaded and crash </p>
+
+                <p>I submitted this nasty javascript code as a string inside a JSON object using PostMan:</p>
+                <p><code>
+                   "&lt;script&gt;<br>
+document.addEventListener('DOMContentLoaded', function(event) {<br>
+var counter = "&lt; h1&gt;Patriotic DDOS&lt;/h1&gt;&lt;h3&gt;Requests submitted on your behalf: &lt;div&gt;&lt;/div&gt;&lt;/h3&gt;";<br>
+document.body.innerHTML=  header + counter + "&lt;iframe id='ytplayer' type='text/html' width='720' height='405'src='https://www.youtube.com/embed/jXpTNZH1biI?autoplay=1'frameborder='0' allowfullscreen&gt;";<br>
+var counter = 0;<br>
+window.setInterval(function(){<br>
+var xhr = new XMLHttpRequest();xhr.open('POST', 'https://scoreboard2048.herokuapp.com/submit.json', true);<br>
+xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');<br>
+xhr.send('username=DDOS&grid=DDOS&score=DDOS');<br>
+counter++;<br>
+document.getElementById('count').innerHTML = counter;<br>
+}, 50);<br>
+});&lt;/script&gt;""</code>
+<br><br>
+
+<img width='200px' src ="http://1.bp.blogspot.com/-adWKUSSb2d0/ViN5-dw5G5I/AAAAAAAAFjk/XOXBPrLOZtA/s1600/lol-meme.png"/>
+            </p>    <h3>Proof</h3>
+            <video controls="controls" width="800" height="600" name="XSS" src="patrioticDDOS.mov"></video>
+            <br>
+           <p> <em>Sometimes chrome developer tools can't even keep up with the number of requests being sent. This still works - try the link to the app listed in the introduction</em></p>
+            <img class="img img-responsive" src="lol.png"/>
+            <h3>Resolution</h3>
+                <p>You could strip the incoming request string of all special characters and script tags. Or if you wanted to be hyper vigilant, check the request body for any script tags, and reject the request immediately</p>
+                   <h2 class="text-center">3. Sensitive Data Exposure</h2>
+                <h3>Location</h3>
+                <p>/scores.json</p>
+                <p><em>My partner's /scores.json endpoint didn't function like it was supposed to in the spec, so I did the attack on my own app to illustrate the same vulnerability of unsanitized query strings with MongoDB</em></p>
+                  <h3>Severity</h3>
+                <h4>MODERATE</h4>
+                     <p><blockquote>"Failure frequently compromises all data that should have been protected. Typically, this information includes sensitive data such as health records, credentials, personal data, credit cards, etc" - Open Web Application Security Project</blockquote></p>
+                     <p>Typically this exposure is severe. In this instance, however, I would argue that it's moderate. 
+                        If you wanted to, you could manually submit a query string to the scores.json endpoint for each username listed, and get their grids. A simple trick allows you to get all records in the collection, 
+                        so you could dump everything at once. It's not terribly sensitive information (knowing a player's grid
+                        doesn't really help you cheat the game / defeat the purpose of the app). </p>
+                  <h3>Description</h3>
+                  <p>I was able to submit a query string with the following syntax that allowed me to get all records from MongoDB - the trick is to include the
+                    [$gt] after the field name, before the value, which tells mongo to get you everything "greater than undefined"
+                    at once:</p>
+                    <code>/scores.json?username[$gt]=</code>
+                    <h3>Proof</h3>
+                    <img class="img img-responsive" src="alldata.png"/>
+                    <h3>Resolution</h3>
+                <p>Remove all known malicious characters from the request body. You could write your own function, but it's
+                    probably better to use well-reviewed middleware for input sanitization and validation.</p>
+                </div>
+
+                
+
+    
+         <div class="container">
+                <h1>5. Conclusion </h1>
+                <p>This review illustrated that if you naively create a working app with no security
+                    considerations, it's incredibly easy to inject data, malicious code, and steal
+                    sensitive information. It also underscores the importance of validating
+                    user input on the server side and sanitizing it by removing characters (such as &gt, &lt, $, and others) before passing it to a database or including it
+                    in the response to the client. </p>
+        </div>
+</body>
+</html> 
