@@ -36,12 +36,12 @@ programming languages...
 
 # Most Important Takeaways
 
-*You learn just as much from your peers as you do from professors
-*Using version control with git & communicating your ideas with meaningful comments
+* You learn just as much from your peers as you do from professors
+* Using version control with git & communicating your ideas with meaningful comments
  helps everyone maintain and troubleshoot a project
-*Javascript is really expressive, also incredibly forgiving - for that reason, it's sometimes painful to debug
-*Being okay with failing as you're still learning, and recognizing that understanding mistakes make you a much better programmer and team player 
-*Self-teaching by reading documentation & reviewing examples is very, very empowering 
+* Javascript is really expressive, also incredibly forgiving - for that reason, it's sometimes painful to debug
+* Being okay with failing as you're still learning, and recognizing that understanding mistakes make you a much better programmer and team player 
+* Self-teaching by reading documentation & reviewing examples is very, very empowering 
 
 # Moving Forward
 I'm interested in learning more about how to design, implement, and *maintain*
@@ -50,5 +50,3 @@ design, and integrating the front end with the server such that there's two
 way data binding.
 
 I'm looking forward to Web Engineering next semester!
-
-- Justin
